@@ -2,11 +2,7 @@ pipeline {
     agent any
     tools {
         maven 'Maven3'
-        jdk 'JDK17'
-    }
-    environment {
-        NEXUS_REPO_URL = 'http://localhost:8081/repository/maven-releases/'
-        SONAR_PROJECT_KEY = 'CRUDEtudiant_Using_SPRINGFramework'
+        jdk 'JDK17' 
     }
     stages {
         stage('Checkout') {
@@ -23,37 +19,24 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('SonarQube') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY}'
-                }
+                sh 'mvn sonar:sonar -Dsonar.projectKey=CRUDEtudiant_Using_SPRINGFramework'
             }
         }
 
         stage('Deploy to Nexus') {
             steps {
-                sh '''
-                    JAR_FILE=$(ls target/*.jar)
-                    mvn deploy:deploy-file \
-                    -DgroupId=com.example \
-                    -DartifactId=crud-etudiant \
-                    -Dversion=1.0.0 \
-                    -Dpackaging=jar \
-                    -Dfile=${JAR_FILE} \
-                    -Durl=${NEXUS_REPO_URL} \
-                    -DrepositoryId=nexus-releases \
-                    -DskipTests=true
-                '''
+                sh 'mvn deploy -DskipTests'
             }
         }
     }
     post {
         success {
-            echo 'Pipeline succeeded! Artifact deployed to Nexus.'
+            echo 'Pipeline succeeded!'
         }
         failure {
-            echo 'Pipeline failed! Check logs.'
+            echo 'Pipeline failed!'
         }
     }
 }

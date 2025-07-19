@@ -1,44 +1,21 @@
 pipeline {
     agent any
-    tools {
-        maven 'Maven3'
-        jdk 'JDK17'
+
+    environment {
+        MAVEN_HOME = tool 'Maven 3'  // Or your configured Maven name
     }
+
     stages {
-        stage('Checkout') {
+        stage('Build and Deploy to Nexus') {
             steps {
-                git branch: 'master',
-                url: 'https://github.com/Taha07-a/CRUDEtudiant_Using_SPRINGFramework.git'
-            }
-        }
-
-        stage('Build & Test') {
-            steps {
-                sh 'mvn clean package'
-                junit '**/target/surefire-reports/*.xml'
-            }
-        }
-
-        stage('SonarQube') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=CRUDEtudiant_Using_SPRINGFramework'
+                withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                    sh """
+                        ${MAVEN_HOME}/bin/mvn clean deploy \
+                        -Dusername=${NEXUS_USER} \
+                        -Dpassword=${NEXUS_PASS}
+                    """
                 }
             }
-        }
-
-        stage('Deploy to Nexus') {
-            steps {
-                sh 'mvn deploy -DskipTests'
-            }
-        }
-    }
-    post {
-        success {
-            echo 'Pipeline succeeded!'
-        }
-        failure {
-            echo 'Pipeline failed!'
         }
     }
 }

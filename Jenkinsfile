@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
+                git branch: .master.,
                 url: 'https://github.com/YOUR_USER/CRUDEtudiant_Using_SPRINGFramework.git'
             }
         }

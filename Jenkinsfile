@@ -33,20 +33,18 @@ pipeline {
 
         stage('Deploy to Nexus') {
             steps {
-                script {
-                    def jarFile = findFiles(glob: 'target/*.jar')[0].path
-                    sh """
-                        mvn deploy:deploy-file \
-                        -DgroupId=com.example \
-                        -DartifactId=crud-etudiant \
-                        -Dversion=1.0.0 \
-                        -Dpackaging=jar \
-                        -Dfile=${jarFile} \
-                        -Durl=${NEXUS_REPO_URL} \
-                        -DrepositoryId=nexus-releases \
-                        -DskipTests=true
-                    """
-                }
+                sh '''
+                    JAR_FILE=$(ls target/*.jar)
+                    mvn deploy:deploy-file \
+                    -DgroupId=com.example \
+                    -DartifactId=crud-etudiant \
+                    -Dversion=1.0.0 \
+                    -Dpackaging=jar \
+                    -Dfile=${JAR_FILE} \
+                    -Durl=${NEXUS_REPO_URL} \
+                    -DrepositoryId=nexus-releases \
+                    -DskipTests=true
+                '''
             }
         }
     }

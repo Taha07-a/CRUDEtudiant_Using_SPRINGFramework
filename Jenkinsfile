@@ -2,7 +2,7 @@ pipeline {
     agent any
     tools {
         maven 'Maven3'
-        jdk 'JDK17' 
+        jdk 'JDK17'
     }
     stages {
         stage('Checkout') {
@@ -21,7 +21,9 @@ pipeline {
 
         stage('SonarQube') {
             steps {
-                sh 'mvn sonar:sonar -Dsonar.projectKey=CRUDEtudiant_Using_SPRINGFramework'
+                withSonarQubeEnv('SonarQube') {
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=CRUDEtudiant_Using_SPRINGFramework'
+                }
             }
         }
 
